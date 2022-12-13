@@ -4,10 +4,14 @@ const jwt = require("jsonwebtoken");
 const config = require("../../config");
 const usersService = require("./users.service");
 
+
 class UsersController {
   async getAll(req, res, next) {
     try {
-      const users = await usersService.getAll();
+      const domain = req.query.domain;
+      const users = domain 
+      ? await usersService.getByDomain(domain)
+      : await usersService.getAll();
       res.json(users);
     } catch (err) {
       next(err);
@@ -16,11 +20,25 @@ class UsersController {
   async getById(req, res, next) {
     try {
       const id = req.params.id;
-      const user = await usersService.get(id);
+      const user = await usersService.getById(id);
       if (!user) {
         throw new NotFoundError();
       }
       res.json(user);
+     
+    } catch (err) {
+      next(err);
+    }
+  }
+  async getByDomain(req, res, next) {
+    try {
+      const domain = req.query.domain;
+      const user = await usersService.getByDomain(domain);
+      if (!user) {
+        throw new NotFoundError();
+      }
+      res.json(user);
+     
     } catch (err) {
       next(err);
     }
@@ -71,6 +89,17 @@ class UsersController {
       });
     } catch (err) {
       next(err);
+    }
+  }
+
+  async getAllUserArticle(req, res, next){
+    try {
+      const id = req.params.id;
+      const article = await usersService.getAllUserArticle(id);
+      res.json(article);
+
+    } catch (error) {
+      next(error);
     }
   }
 }

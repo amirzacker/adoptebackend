@@ -1,12 +1,16 @@
 const User = require("./users.model");
+const Article = require("../articles/articles.schema");
 const bcrypt = require("bcrypt");
 
 class UserService {
   getAll() {
-    return User.find({}, "-password");
+    return User.find({isStudent: true}, "-password").populate("domain", "name").populate("searchType", "name");
   }
-  get(id) {
-    return User.findById(id, "-password");
+  getById(id) {
+    return User.findById(id, "-password").populate("domain", "name").populate("searchType", "name");
+  }
+  getByDomain(domain) {
+    return User.find({ "domain.name" :  domain });
   }
   create(data) {
     const user = new User(data);
@@ -17,6 +21,9 @@ class UserService {
   }
   delete(id) {
     return User.deleteOne({ _id: id });
+  }
+  getAllUserArticle(userId) {
+    return Article.find({ user: userId }).populate("user", "-password");
   }
   async checkPasswordUser(email, password) {
     const user = await User.findOne({ email });
