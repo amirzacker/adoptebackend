@@ -41,10 +41,12 @@ const userSchema = Schema({
   searchType: {
     type: Schema.Types.ObjectId,
     ref: "SearchType",
+    autopopulate: true
   },
   domain: {
     type: Schema.Types.ObjectId,
     ref: "Domain",
+    autopopulate: true
   },
   startDate: {
     type: Date,
@@ -65,14 +67,17 @@ const userSchema = Schema({
   isAdmin: {
     type: Boolean,
     default: false,
+    immutable: true
   },
   isStudent: {
     type: Boolean,
     default: false,
+    immutable: true
   },
   isCompany: {
     type: Boolean,
     default: false,
+    immutable: true
   },
   name: {
     type: String,

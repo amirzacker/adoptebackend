@@ -10,6 +10,7 @@ const domainSchema = Schema({
 
 let Domain;
 
+
 module.exports = Domain = model("Domain", domainSchema);
 
 

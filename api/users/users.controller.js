@@ -54,24 +54,36 @@ class UsersController {
     }
   }
   async update(req, res, next) {
-    try {
-      const id = req.params.id;
-      const data = req.body;
-      const userModified = await usersService.update(id, data);
-      userModified.password = undefined;
-      res.json(userModified);
-    } catch (err) {
-      next(err);
-    }
+    
+      try {
+        if (req.user._id == req.params.id || req.user.isAdmin){
+          const id = req.params.id;
+          const data = req.body;
+          const userModified = await usersService.update(id, data);
+          userModified.password = undefined;
+          res.json(userModified);
+        }
+        else {
+          return res.status(403).json("You can update only your account!");
+        }
+      } catch (err) {
+        next(err);
+      }
+   
   }
   async delete(req, res, next) {
-    try {
-      const id = req.params.id;
-      await usersService.delete(id);
-      req.io.emit("user:delete", { id });
-      res.status(204).send();
-    } catch (err) {
-      next(err);
+    if (req.user._id == req.params.id || req.user.isAdmin) {
+      try {
+        const id = req.params.id;
+        await usersService.delete(id);
+        req.io.emit("user:delete", { id });
+        res.status(204).send();
+      } catch (err) {
+        next(err);
+      }
+    } 
+    else {
+      return res.status(403).json("You can delete only your account!");
     }
   }
   async login(req, res, next) {
@@ -81,11 +93,14 @@ class UsersController {
       if (!userId) {
         throw new UnauthorizedError();
       }
+      const user = await usersService.getById(userId);
       const token = jwt.sign({ userId }, config.secretJwtToken, {
         expiresIn: "3d",
       });
+
       res.json({
         token,
+        user
       });
     } catch (err) {
       next(err);
@@ -100,6 +115,85 @@ class UsersController {
 
     } catch (error) {
       next(error);
+    }
+  }
+
+  async adopte(req, res, next){
+
+    if (req.user._id !== req.params.id) {
+      try {
+        const user = await usersService.getById(req.params.id);
+        const currentUser = await usersService.getById(req.user._id);
+        if (!user.isAdopted.includes(req.user._id)) {
+          await user.updateOne({ $push: { isAdopted: req.user._id } });
+          await currentUser.updateOne({ $push: { adoptions: req.params.id } });
+          res.status(200).json("user has been adopted");
+        } else {
+          res.status(403).json("you allready adopte this user");
+        }
+      } catch (err) {
+        next(err);
+      }
+    } else {
+      res.status(403).json("you can't adopte yourself");
+    }
+  }
+
+  async unadopte(req, res, next){
+
+    if (req.user._id !== req.params.id) {
+      try {
+        const user = await usersService.getById(req.params.id);
+        const currentUser = await usersService.getById(req.user._id);
+        if (user.isAdopted.includes(req.user._id)) {
+          await user.updateOne({ $pull: { isAdopted: req.user._id } });
+          await currentUser.updateOne({ $pull: { adoptions: req.params.id } });
+          res.status(200).json("user has been unadopted");
+        } else {
+          res.status(403).json("you don't adopte this user");
+        }
+      } catch (err) {
+        next(err);
+      }
+    } else {
+      res.status(403).json("you can't unadopte yourself");
+    }
+  }
+
+  async adoptions(req, res, next){
+
+    try {
+      const user = req.user;
+       if (user.isCompany) {
+        const adoptions = await Promise.all(
+          user.adoptions.map((studentsId) => {
+            return usersService.getById(studentsId);
+          })
+        );
+        let studentsList = [];
+        adoptions.map((student) => {
+          const { _id, firstname,lastname, profilePicture, domain, searchType } = student;
+          studentsList.push({ _id, firstname,lastname, profilePicture, domain , searchType });
+        });
+        res.status(200).json(studentsList) 
+       } else if (user.isStudent) {
+        const adoptions = await Promise.all(
+          user.isAdopted.map((CompaniesId) => {
+            return usersService.getById(CompaniesId);
+          })
+        );
+        let CompaniesList = [];
+        adoptions.map((company) => {
+          const { _id, name, profilePicture } = company;
+          CompaniesList.push({ _id, name, profilePicture });
+        });
+        res.status(200).json(CompaniesList) 
+       } else{
+        throw new UnauthorizedError();
+       }
+      
+    } catch (err) {
+      next(err);
     }
   }
 }

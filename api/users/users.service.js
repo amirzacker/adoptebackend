@@ -4,13 +4,14 @@ const bcrypt = require("bcrypt");
 
 class UserService {
   getAll() {
-    return User.find({isStudent: true}, "-password").populate("domain", "name").populate("searchType", "name");
+    return User.find({}, "-password")
+    //return User.find({isStudent: true}, "-password")
   }
   getById(id) {
-    return User.findById(id, "-password").populate("domain", "name").populate("searchType", "name");
+    return User.findById(id, "-password");
   }
   getByDomain(domain) {
-    return User.find({ "domain.name" :  domain });
+    return User.find({ domain: domain }, "-password");
   }
   create(data) {
     const user = new User(data);
