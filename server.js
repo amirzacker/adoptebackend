@@ -118,9 +118,9 @@ const storage = multer.diskStorage({
     if (file.mimetype === 'image/jpeg' || file.mimetype === 'application/pdf' || file.mimetype === 'image/jpg' || file.mimetype === 'image/png'  || file.mimetype === 'application/pdf'  ) {
        //console.log(file);
        //in test postman
-       cb(null, file.originalname);
+       //cb(null, file.originalname);
         //in dev
-        //cb(null, req.body.name);
+        cb(null, req.body.name);
 
     } else{
       return cb(new Error('Invalid mime type , try only pdf , jpeg, png , jpg'));
@@ -130,7 +130,8 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-app.post("/api/upload", upload.single("file"), (req, res) => {
+
+app.post("/api/uploads", upload.single("file"), (req, res) => {
   try {
     return res.status(200).json("File uploded successfully");
   } catch (error) {
