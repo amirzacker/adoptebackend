@@ -30,6 +30,19 @@ class UsersController {
       next(err);
     }
   }
+  async getByEmail(req, res, next) {
+    try {
+      const email = req.params.email;
+      const user = await usersService.getByEmail(email);
+      if (!user) {
+        throw new NotFoundError();
+      }
+      res.json(user);
+     
+    } catch (err) {
+      next(err);
+    }
+  }
   async getByDomain(req, res, next) {
     try {
       const domain = req.query.domain;
@@ -43,6 +56,7 @@ class UsersController {
       next(err);
     }
   }
+
   async create(req, res, next) {
     try {
       const user = await usersService.create(req.body);

@@ -8,11 +8,17 @@ class UserService {
     //return User.find({isStudent: true}, "-password")
   }
   getById(id) {
+    //return User.findOne({email : id}, "-password");
     return User.findById(id, "-password");
+  }
+  getByEmail(email) {
+    return User.findOne({email : email}, "-password");
+    //return User.findById(id, "-password");
   }
   getByDomain(domain) {
     return User.find({ domain: domain }, "-password");
   }
+ 
   create(data) {
     const user = new User(data);
     return user.save();

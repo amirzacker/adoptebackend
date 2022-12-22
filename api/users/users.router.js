@@ -7,6 +7,7 @@ const router = express.Router();
 router.get("/adoptions",authMiddelware, usersController.adoptions);
 router.get("/", usersController.getAll);
 router.get("/:id", usersController.getById);
+router.get("/email/:email", usersController.getByEmail);
 router.get("/domain/:domainId", usersController.getByDomain);
 router.post("/", usersController.create);
 router.put("/:id", authMiddelware ,usersController.update);
