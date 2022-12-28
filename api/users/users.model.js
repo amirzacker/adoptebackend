@@ -106,5 +106,12 @@ userSchema.pre("save", async function () {
 userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, 10);
 });
+userSchema.pre('findOneAndUpdate', async function() {
+  // Check if the password field is being modified
+  if (this._update.password) {
+    // Hash the password before updating the user
+    this._update.password = await bcrypt.hash(this._update.password, 10);
+  }
+});
 userSchema.plugin(require('mongoose-autopopulate'));
 module.exports = model("User", userSchema);

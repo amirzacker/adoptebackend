@@ -6,6 +6,7 @@ class UserService {
   getAll() {
     //return User.find({}, "-password")
     return User.find({isStudent: true, status: true}, "-password")
+    //return User.find({})
   }
   getById(id) {
     //return User.findOne({email : id}, "-password");
