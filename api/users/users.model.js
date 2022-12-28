@@ -28,7 +28,7 @@ const userSchema = Schema({
   },
   profilePicture: {
     type: String,
-    default: "",
+    default: "1672237090755avatar3.png",
   },
   cv: {
     type: String,
@@ -73,6 +73,10 @@ const userSchema = Schema({
     type: Boolean,
     default: false,
     immutable: true
+  },
+  status: {
+    type: Boolean,
+    default: true,
   },
   isCompany: {
     type: Boolean,

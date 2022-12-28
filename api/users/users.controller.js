@@ -8,10 +8,7 @@ const usersService = require("./users.service");
 class UsersController {
   async getAll(req, res, next) {
     try {
-      const domain = req.query.domain;
-      const users = domain 
-      ? await usersService.getByDomain(domain)
-      : await usersService.getAll();
+      const users = await usersService.getAll();
       res.json(users);
     } catch (err) {
       next(err);
@@ -68,9 +65,8 @@ class UsersController {
     }
   }
   async update(req, res, next) {
-    
       try {
-        if (req.user._id == req.params.id || req.user.isAdmin){
+        if (req.body.id == req.params.id || req.user.isAdmin){
           const id = req.params.id;
           const data = req.body;
           const userModified = await usersService.update(id, data);
@@ -86,7 +82,7 @@ class UsersController {
    
   }
   async delete(req, res, next) {
-    if (req.user._id == req.params.id || req.user.isAdmin) {
+    if (req.body.id == req.params.id || req.user.isAdmin) {
       try {
         const id = req.params.id;
         await usersService.delete(id);
@@ -134,12 +130,13 @@ class UsersController {
 
   async adopte(req, res, next){
 
-    if (req.user._id !== req.params.id) {
+    if (req.body.id !== req.params.id) {
       try {
         const user = await usersService.getById(req.params.id);
-        const currentUser = await usersService.getById(req.user._id);
-        if (!user.isAdopted.includes(req.user._id)) {
-          await user.updateOne({ $push: { isAdopted: req.user._id } });
+        const currentUser = await usersService.getById(req.body.id);
+        //console.log(currentUser);
+        if (!user.isAdopted.includes(req.body?.id)) {
+          await user.updateOne({ $push: { isAdopted: req.body.id } });
           await currentUser.updateOne({ $push: { adoptions: req.params.id } });
           res.status(200).json("user has been adopted");
         } else {
@@ -155,12 +152,13 @@ class UsersController {
 
   async unadopte(req, res, next){
 
-    if (req.user._id !== req.params.id) {
+    if (req.body.id !== req.params.id) {
       try {
         const user = await usersService.getById(req.params.id);
-        const currentUser = await usersService.getById(req.user._id);
-        if (user.isAdopted.includes(req.user._id)) {
-          await user.updateOne({ $pull: { isAdopted: req.user._id } });
+        console.log(req.body.id);
+        const currentUser = await usersService.getById(req.body.id);
+        if (user.isAdopted.includes(req.body.id)) {
+          await user.updateOne({ $pull: { isAdopted: req.body.id } });
           await currentUser.updateOne({ $pull: { adoptions: req.params.id } });
           res.status(200).json("user has been unadopted");
         } else {
@@ -178,6 +176,7 @@ class UsersController {
 
     try {
       const user = req.user;
+      console.log(user);
        if (user.isCompany) {
         const adoptions = await Promise.all(
           user.adoptions.map((studentsId) => {
@@ -205,6 +204,38 @@ class UsersController {
        } else{
         throw new UnauthorizedError();
        }
+      
+    } catch (err) {
+      next(err);
+    }
+  }
+  async adopted(req, res, next){
+
+    try {
+      const user = req.user;
+        const adopted = await Promise.all(
+          user.isAdopted.map((CompaniesId) => {
+            return usersService.getById(CompaniesId);
+          })
+        );
+        let CompaniesList = [];
+        adopted.map((company) => {
+          const { _id, name, profilePicture } = company;
+          CompaniesList.push({ _id, name, profilePicture });
+        });
+
+        const adoptions = await Promise.all(
+          user.adoptions.map((studentsId) => {
+            return usersService.getById(studentsId);
+          })
+        );
+        let studentsList = [];
+        adoptions.map((student) => {
+          const { _id, firstname,lastname, profilePicture, domain, searchType } = student;
+          studentsList.push({ _id, firstname,lastname, profilePicture, domain , searchType });
+        });
+        res.status(200).json({adopted : CompaniesList, adoptions: studentsList })
+
       
     } catch (err) {
       next(err);
