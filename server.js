@@ -9,12 +9,16 @@ const path = require("path");
 const NotFoundError = require("./errors/not-found");
 const userRouter = require("./api/users/users.router");
 const usersController = require("./api/users/users.controller");
-const artcileRouter = require("./api/articles/articles.router");
 const authMiddleware = require("./middlewares/auth");
 const domainRouter = require("./api/domains/domains.router");
 const searchTypeRouter = require("./api/searchTypes/searchTypes.router");
 const messagesRouter = require("./api/messages/messages.router");
 const conversationsRouter = require("./api/conversations/conversations.router");
+const cookieParser = require('cookie-parser');
+const session = require("express-session")
+const { default: AdminBro } = require('admin-bro');
+const options = require("./api/admin/admin.options");
+const buildAdminRouter = require("./api/admin/admin.router");
 
 const app = express();
 
@@ -94,7 +98,6 @@ io.on("connection", (socket) => {
 
 
 
-
 //end test socket 
 
 app.use((req, res, next) => {
@@ -102,7 +105,30 @@ app.use((req, res, next) => {
   next();
 });
 
+//cookie
+app.use(cookieParser());
+app.use(session({
+  secret: 'your-secret-here',
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'done-un-tres-tres-logn-mot-de-masww', // <-- Add the secret option here
+  resave: false,
+  saveUninitialized: true,
+}));
+
+const admin = new AdminBro(options);
+const router = buildAdminRouter(admin);
+app.use(admin.options.rootPath, router);
+
+
+
+
+
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+
 
 app.use(cors());
 app.use(express.json());
@@ -138,8 +164,6 @@ app.post("/api/uploads", upload.single("file"), (req, res) => {
   }
 });
 
-app.get("/api/users/:id/articles", usersController.getAllUserArticle);
-app.use("/api/articles", authMiddleware, artcileRouter);
 app.use("/api/messages", authMiddleware, messagesRouter);
 app.use("/api/conversations", authMiddleware, conversationsRouter);
 app.use("/api/users", userRouter);
@@ -148,6 +172,10 @@ app.post("/api/login", usersController.login);
 
 app.use("/api/domains", domainRouter);
 app.use("/api/searchTypes", searchTypeRouter);
+
+
+
+
 app.use("/", express.static("public"));
 
 app.use((req, res, next) => {

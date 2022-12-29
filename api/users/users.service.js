@@ -1,5 +1,4 @@
 const User = require("./users.model");
-const Article = require("../articles/articles.schema");
 const bcrypt = require("bcrypt");
 
 class UserService {
@@ -30,9 +29,7 @@ class UserService {
   delete(id) {
     return User.deleteOne({ _id: id });
   }
-  getAllUserArticle(userId) {
-    return Article.find({ user: userId }).populate("user", "-password");
-  }
+
   async checkPasswordUser(email, password) {
     const user = await User.findOne({ email });
     if (!user) {

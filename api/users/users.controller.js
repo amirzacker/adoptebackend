@@ -117,16 +117,7 @@ class UsersController {
     }
   }
 
-  async getAllUserArticle(req, res, next){
-    try {
-      const id = req.params.id;
-      const article = await usersService.getAllUserArticle(id);
-      res.json(article);
-
-    } catch (error) {
-      next(error);
-    }
-  }
+ 
 
   async adopte(req, res, next){
 
