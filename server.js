@@ -19,6 +19,8 @@ const session = require("express-session")
 const { default: AdminBro } = require('admin-bro');
 const options = require("./api/admin/admin.options");
 const buildAdminRouter = require("./api/admin/admin.router");
+const config = require("./config");
+
 
 const app = express();
 
@@ -26,7 +28,7 @@ const server = http.createServer(app);
 //const io = new Server(server);
 const io = new Server(server,{ 
   cors: {
-    origin: "http://localhost:3000"
+    origin: config.fronUrl || "http://localhost:3000"
   }
 }) //in case server and client run on different urls
 
@@ -114,7 +116,7 @@ app.use(session({
 }));
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'done-un-tres-tres-logn-mot-de-masww', // <-- Add the secret option here
+  secret: config.SESSION_SECRET || 'done-un-tres-tres-logn-mot-de-masww', // <-- Add the secret option here
   resave: false,
   saveUninitialized: true,
 }));
