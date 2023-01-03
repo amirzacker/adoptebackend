@@ -14,6 +14,14 @@ class UsersController {
       next(err);
     }
   }
+  async getStudents(req, res, next) {
+    try {
+      const users = await usersService.getStudents();
+      res.json(users);
+    } catch (err) {
+      next(err);
+    }
+  }
   async getById(req, res, next) {
     try {
       const id = req.params.id;

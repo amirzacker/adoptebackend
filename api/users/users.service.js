@@ -3,6 +3,11 @@ const bcrypt = require("bcrypt");
 
 class UserService {
   getAll() {
+    return User.find({}, "-password")
+    //return User.find({isStudent: true, status: true}, "-password")
+    //return User.find({})
+  }
+  getStudents() {
     //return User.find({}, "-password")
     return User.find({isStudent: true, status: true}, "-password")
     //return User.find({})

@@ -18,7 +18,7 @@ const options = {
             navigation: {
                 name: 'Users',
                 icon: 'User',
-            },
+            }, 
           },
     },
     { resource: domainsSchema,
@@ -40,17 +40,18 @@ const options = {
     { resource: messagesSchema,
         options: {
             navigation: {
-                name: 'Message',
-                icon: 'List',
+                name: 'Messenger',
+                icon: 'Send',
             },
           },
     },
     { resource: conversationsSchema,
+      resource: conversationsSchema,
         options: {
-            navigation: {
-                name: 'Conversation',
-                icon: 'List',
-            },
+          parent : {
+            name: 'Messenger',
+            icon: 'Send',
+          },
           },
     },
   ],
