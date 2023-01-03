@@ -1,6 +1,6 @@
 module.exports = {
   port: process.env.PORT || 3001,
-  mongoUri: "mongodb://localhost:27017/myapp",
+  mongoUri: "mongodb+srv://admin:admin123@cluster0.uwjnb.mongodb.net/adopte1etudiant?retryWrites=true&w=majority",
   secretJwtToken: "test",
   ADMIN_COOKIE_PASSWORD: "dgdnd,nf,dnfd,n,dnd,n,dndddddd",
   SESSION_SECRET: "done-un-tres-tres-logn-mot-de-masww",
