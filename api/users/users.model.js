@@ -56,11 +56,7 @@ const userSchema = Schema({
     type: Date,
     require: false
   },
-  isAdopted: {
-    type: Array,
-    default: [],
-  },
-  adoptions: {
+  favoris: {
     type: Array,
     default: [],
   },

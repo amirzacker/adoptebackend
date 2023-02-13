@@ -127,114 +127,62 @@ class UsersController {
 
  
 
-  async adopte(req, res, next){
-
+  async addfavoris(req, res, next){
+    
     if (req.body.id !== req.params.id) {
       try {
-        const user = await usersService.getById(req.params.id);
         const currentUser = await usersService.getById(req.body.id);
         //console.log(currentUser);
-        if (!user.isAdopted.includes(req.body?.id)) {
-          await user.updateOne({ $push: { isAdopted: req.body.id } });
-          await currentUser.updateOne({ $push: { adoptions: req.params.id } });
-          res.status(200).json("user has been adopted");
+        if (!currentUser.favoris.includes(req?.params?.id)) {
+          await currentUser.updateOne({ $push: { favoris: req.params.id } });
+          res.status(200).json("user has been add to favoris");
         } else {
-          res.status(403).json("you allready adopte this user");
+          res.status(403).json("you allready have this user in favoris");
         }
       } catch (err) {
         next(err);
       }
     } else {
-      res.status(403).json("you can't adopte yourself");
+      res.status(403).json("you can't add yourself in favoris");
     }
   }
 
-  async unadopte(req, res, next){
+  async unfavoris(req, res, next){
 
     if (req.body.id !== req.params.id) {
       try {
-        const user = await usersService.getById(req.params.id);
-        console.log(req.body.id);
         const currentUser = await usersService.getById(req.body.id);
-        if (user.isAdopted.includes(req.body.id)) {
-          await user.updateOne({ $pull: { isAdopted: req.body.id } });
-          await currentUser.updateOne({ $pull: { adoptions: req.params.id } });
-          res.status(200).json("user has been unadopted");
+        if (currentUser.favoris.includes(req.params.id)) {
+          await currentUser.updateOne({ $pull: { favoris: req.params.id } });
+          res.status(200).json("user has been removed from favoris");
         } else {
-          res.status(403).json("you don't adopte this user");
+          res.status(403).json("you don't add this user in favoris");
         }
       } catch (err) {
         next(err);
       }
     } else {
-      res.status(403).json("you can't unadopte yourself");
+      res.status(403).json("you can't remove  yourself from favoris");
     }
   }
 
-  async adoptions(req, res, next){
+
+  async favoris(req, res, next){
 
     try {
-      const user = req.user;
-      console.log(user);
-       if (user.isCompany) {
-        const adoptions = await Promise.all(
-          user.adoptions.map((studentsId) => {
+        const id = req.params.companyId;
+        const user = await usersService.getById(id);
+        const favoris = await Promise.all(
+          user.favoris.map((studentsId) => {
             return usersService.getById(studentsId);
           })
         );
         let studentsList = [];
-        adoptions.map((student) => {
+        favoris.map((student) => {
           const { _id, firstname,lastname, profilePicture, domain, searchType } = student;
           studentsList.push({ _id, firstname,lastname, profilePicture, domain , searchType });
         });
-        res.status(200).json(studentsList) 
-       } else if (user.isStudent) {
-        const adoptions = await Promise.all(
-          user.isAdopted.map((CompaniesId) => {
-            return usersService.getById(CompaniesId);
-          })
-        );
-        let CompaniesList = [];
-        adoptions.map((company) => {
-          const { _id, name, profilePicture } = company;
-          CompaniesList.push({ _id, name, profilePicture });
-        });
-        res.status(200).json(CompaniesList) 
-       } else{
-        throw new UnauthorizedError();
-       }
-      
-    } catch (err) {
-      next(err);
-    }
-  }
-  async adopted(req, res, next){
-
-    try {
-      const user = req.user;
-        const adopted = await Promise.all(
-          user.isAdopted.map((CompaniesId) => {
-            return usersService.getById(CompaniesId);
-          })
-        );
-        let CompaniesList = [];
-        adopted.map((company) => {
-          const { _id, name, profilePicture } = company;
-          CompaniesList.push({ _id, name, profilePicture });
-        });
-
-        const adoptions = await Promise.all(
-          user.adoptions.map((studentsId) => {
-            return usersService.getById(studentsId);
-          })
-        );
-        let studentsList = [];
-        adoptions.map((student) => {
-          const { _id, firstname,lastname, profilePicture, domain, searchType } = student;
-          studentsList.push({ _id, firstname,lastname, profilePicture, domain , searchType });
-        });
-        res.status(200).json({adopted : CompaniesList, adoptions: studentsList })
-
+        res.status(200).json({ favoris })
       
     } catch (err) {
       next(err);

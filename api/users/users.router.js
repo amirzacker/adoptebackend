@@ -4,15 +4,15 @@ const usersController = require("./users.controller");
 const router = express.Router();
 
 
-router.get("/adoptions",authMiddelware, usersController.adopted);
+router.get("/favoris/:companyId",authMiddelware, usersController.favoris);
 router.get("/", usersController.getAll);
 router.get("/:id", usersController.getById);
-router.put("/:id/adopte",authMiddelware, usersController.adopte);
+router.put("/:id/addfavoris",authMiddelware, usersController.addfavoris);
 router.get("/email/:email", usersController.getByEmail);
 router.get("/domain/:domainId", usersController.getByDomain);
 router.post("/", usersController.create);
 router.put("/:id", authMiddelware ,usersController.update);
-router.put("/:id/unadopte",authMiddelware, usersController.unadopte);
+router.put("/:id/unfavoris",authMiddelware, usersController.unfavoris);
 router.delete("/:id",authMiddelware, usersController.delete);
 
 module.exports = router;

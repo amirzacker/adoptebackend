@@ -14,6 +14,8 @@ const domainRouter = require("./api/domains/domains.router");
 const searchTypeRouter = require("./api/searchTypes/searchTypes.router");
 const messagesRouter = require("./api/messages/messages.router");
 const conversationsRouter = require("./api/conversations/conversations.router");
+const adoptionsRouter = require("./api/adoptions/adoptions.router");
+const contractsRouter = require("./api/contracts/contracts.router");
 const cookieParser = require('cookie-parser');
 const session = require("express-session")
 const { default: AdminBro } = require('admin-bro');
@@ -169,6 +171,8 @@ app.post("/api/uploads", upload.single("file"), (req, res) => {
 app.use("/api/messages", authMiddleware, messagesRouter);
 app.use("/api/conversations", authMiddleware, conversationsRouter);
 app.use("/api/users", userRouter);
+app.use("/api/adoptions", authMiddleware,  adoptionsRouter);
+app.use("/api/contracts", authMiddleware,  contractsRouter);
 //app.use("/api/users", authMiddleware, userRouter);
 app.post("/api/login", usersController.login);
 
